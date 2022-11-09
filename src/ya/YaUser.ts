@@ -30,4 +30,5 @@ export class YaUser extends OAuthUser {
             }
         }
     }
+    
 }
