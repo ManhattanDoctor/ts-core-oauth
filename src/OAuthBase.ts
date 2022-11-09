@@ -165,11 +165,14 @@ export interface IOAuthPopUpDto {
 }
 
 export interface IOAuthToken {
-    type?: string;
     state?: string;
     scope?: string;
+    userId?: number;
+    tokenType?: string;
 
-    userId: number;
+    idToken?: string;
+    refreshToken?: string;
+
     expiresIn: number;
     accessToken: string;
 }

@@ -5,6 +5,19 @@ export class YaUser extends OAuthUser {
 
     //--------------------------------------------------------------------------
     //
+    // 	Properties
+    //
+    //--------------------------------------------------------------------------
+
+    public login: string;
+    public psuid: string;
+    public emails: Array<string>;
+    public clientId: string;
+    public realName: string;
+    public displayName: string;
+
+    //--------------------------------------------------------------------------
+    //
     // 	Protected Methods
     //
     //--------------------------------------------------------------------------
@@ -12,8 +25,15 @@ export class YaUser extends OAuthUser {
     protected parse(item: any): void {
         this.id = item.id;
         this.name = item.display_name;
+        this.login = item.login;
+        this.psuid = item.psuid;
         this.email = item.default_email;
         this.phone = _.get(item, 'default_phone.number')
+
+        this.emails = item.emails;
+        this.clientId = item.client_id;
+        this.realName = item.real_name;
+        this.displayName = item.display_name;
 
         if (!_.isNil(item.sex)) {
             this.isMale = item.sex === 'male';
@@ -30,5 +50,5 @@ export class YaUser extends OAuthUser {
             }
         }
     }
-    
+
 }

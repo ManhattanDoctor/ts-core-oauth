@@ -2,8 +2,20 @@
 import * as _ from 'lodash';
 import { GoUser } from './GoUser';
 import { IOAuthDto, IOAuthToken, OAuthBase } from '../OAuthBase';
+import { ILogger } from '@ts-core/common';
 
 export class GoOAuth<T extends GoUser = GoUser> extends OAuthBase<T> {
+
+    //--------------------------------------------------------------------------
+    //
+    // 	Constructor
+    //
+    //--------------------------------------------------------------------------
+
+    constructor(logger: ILogger, window: Window, applicationId: string, scope: string) {
+        super(logger, window, applicationId, scope);
+    }
+
     //--------------------------------------------------------------------------
     //
     // 	Protected Methods
@@ -44,6 +56,6 @@ export class GoOAuth<T extends GoUser = GoUser> extends OAuthBase<T> {
                 grant_type: 'authorization_code'
             }
         });
-        return { userId: item.user_id, expiresIn: item.expires_in, accessToken: item.access_token };
+        return { idToken: item.id_token, tokenType: item.token_type, expiresIn: item.expires_in, accessToken: item.access_token, scope: item.scope };
     }
 }

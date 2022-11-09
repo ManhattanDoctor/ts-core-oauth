@@ -4,6 +4,15 @@ export class GoUser extends OAuthUser {
 
     //--------------------------------------------------------------------------
     //
+    // 	Properties
+    //
+    //--------------------------------------------------------------------------
+
+    public givenName: string;
+    public familyName: string;
+
+    //--------------------------------------------------------------------------
+    //
     // 	Protected Methods
     //
     //--------------------------------------------------------------------------
@@ -14,5 +23,8 @@ export class GoUser extends OAuthUser {
         this.email = item.email;
         this.locale = item.locale;
         this.picture = item.picture;
+
+        this.givenName = item.given_name;
+        this.familyName = item.family_name;
     }
 }

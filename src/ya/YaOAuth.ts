@@ -54,6 +54,11 @@ export class YaOAuth<T extends YaUser = YaUser> extends OAuthBase<T> {
             client_secret: secret,
             grant_type: 'authorization_code'
         })
-        return { userId: data.user_id, expiresIn: data.expires_in, accessToken: data.access_token, type: data.token_type, scope: data.scope };
+        return {
+            tokenType: data.token_type,
+            expiresIn: data.expires_in,
+            accessToken: data.access_token,
+            refreshToken: data.refresh_token,
+        };
     }
 }
