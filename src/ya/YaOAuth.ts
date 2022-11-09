@@ -48,7 +48,7 @@ export class YaOAuth<T extends YaUser = YaUser> extends OAuthBase<T> {
     }
 
     public async getTokenByCode(dto: IOAuthDto, secret: string): Promise<IOAuthToken> {
-        let { data } = await (axios as any).postForm('https://oauth.yandex.ru/token', {
+        let { data } = await axios.postForm('https://oauth.yandex.ru/token', {
             code: dto.codeOrToken,
             client_id: this.applicationId,
             client_secret: secret,
