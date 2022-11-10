@@ -9,3 +9,6 @@ export * from './vk/VkAuth';
 //
 export * from './ya/YaUser';
 export * from './ya/YaAuth';
+//
+export * from './ma/MaAuth';
+export * from './ma/MaUser';
