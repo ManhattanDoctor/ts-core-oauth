@@ -43,6 +43,7 @@ export class YaAuth<T extends YaUser = YaUser> extends OAuthBase<T> {
         if (!_.isNil(item.error_description)) {
             throw new ExtendedError(item.error_description);
         }
+        
 
         return {
             expiresIn: item.expires_in,
