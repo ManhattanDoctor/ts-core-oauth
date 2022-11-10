@@ -1,5 +1,6 @@
 import { PromiseHandler, DateUtil, LoggerWrapper, ILogger, TransportHttp } from "@ts-core/common";
 import * as _ from 'lodash';
+import { URLSearchParams } from "url";
 
 export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //--------------------------------------------------------------------------
@@ -18,15 +19,20 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     protected popUpHeight: number = 480;
     protected responseType: string;
 
+    protected _urlParams: Map<string, string>;
+
     //--------------------------------------------------------------------------
     //
     // 	Protected Methods
     //
     //--------------------------------------------------------------------------
 
-    constructor(logger: ILogger, protected window: Window, protected applicationId: string, protected scope?: string) {
+    constructor(logger: ILogger, protected applicationId: string, protected window?: Window) {
         super(logger);
         this.http = new TransportHttp(logger, { method: 'get' });
+
+        this._urlParams = new Map();
+        this.urlParams.set('display', 'popup');
     }
 
     //--------------------------------------------------------------------------
@@ -42,18 +48,17 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
 
         this.promise = PromiseHandler.create();
 
-        this.popUp = this.openPopup(this.getAuthUrl(), '_blank');
+        this.popUp = this.openPopup();
         this.window.addEventListener('message', this.messageHandler, false);
         this.timer = setInterval(this.checkPopUp, DateUtil.MILLISECONDS_NANOSECOND / 2);
         return this.promise.promise;
     }
 
-    protected openPopup(url: string, target: string): Window {
+    protected openPopup(): Window {
         let window = this.window;
-
         let top = (window.screen.height - this.popUpHeight) / 2;
         let left = (window.screen.width - this.popUpWidth) / 2;
-        let item = window.open(url, target, `scrollbars=yes,width=${this.popUpWidth},height=${this.popUpHeight},top=${top},left=${left}`,);
+        let item = window.open(this.getUrl(), '_blank', `scrollbars=yes,width=${this.popUpWidth},height=${this.popUpHeight},top=${top},left=${left}`,);
         item.focus();
         return item;
     }
@@ -63,6 +68,18 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
             this.close();
         }
     }
+
+    protected getUrlParams(): URLSearchParams {
+        let item = new URLSearchParams();
+        item.append('display', 'popup');
+        item.append('client_id', this.applicationId);
+        item.append('redirect_uri', this.redirectUri);
+        item.append('response_type', this.responseType);
+        this.urlParams.forEach((value, key) => item.append(key, value));
+        return item;
+    }
+
+    protected abstract getUrl(): string;
 
     //--------------------------------------------------------------------------
     //
@@ -86,8 +103,6 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
             this.close();
         }
     }
-
-    protected abstract getAuthUrl(): string;
 
     //--------------------------------------------------------------------------
     //
@@ -146,10 +161,25 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         super.destroy();
         this.close();
 
+        if (!_.isNil(this.urlParams)) {
+            this.urlParams.clear();
+            this._urlParams = null;
+        }
+
         if (!_.isNil(this.http)) {
             this.http.destroy();
             this.http = null;
         }
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    // 	Public Properties
+    //
+    //--------------------------------------------------------------------------
+
+    public get urlParams(): Map<string, string> {
+        return this._urlParams;
     }
 
 }

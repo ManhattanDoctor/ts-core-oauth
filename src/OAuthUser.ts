@@ -8,7 +8,7 @@ export abstract class OAuthUser {
     //
     //--------------------------------------------------------------------------
 
-    public id: string | number;
+    public id: string;
     public name: string;
     public city?: string;
     public phone?: string;
@@ -36,11 +36,7 @@ export abstract class OAuthUser {
     //
     //--------------------------------------------------------------------------
 
-    constructor(item?:any) {
-        if(!_.isNil(item)) {
-            this.parse(item);
-        }
-    }
+    constructor() { }
 
     //--------------------------------------------------------------------------
     //
@@ -48,7 +44,7 @@ export abstract class OAuthUser {
     //
     //--------------------------------------------------------------------------
 
-    protected abstract parse(item:any):void;
+    public abstract parse(item: any): void;
 
     //--------------------------------------------------------------------------
     //
@@ -64,7 +60,7 @@ export abstract class OAuthUser {
         if (!_.isEmpty(this.city)) {
             items.push(this.city);
         }
-        return !_.isEmpty(items)? items.join(', '): null;
+        return !_.isEmpty(items) ? items.join(', ') : null;
     }
 
 }

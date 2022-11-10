@@ -13,11 +13,11 @@ export class GoUser extends OAuthUser {
 
     //--------------------------------------------------------------------------
     //
-    // 	Protected Methods
+    // 	Public Methods
     //
     //--------------------------------------------------------------------------
 
-    protected parse(item: any): void {
+    public parse(item: any): void {
         this.id = item.sub;
         this.name = item.name;
         this.email = item.email;

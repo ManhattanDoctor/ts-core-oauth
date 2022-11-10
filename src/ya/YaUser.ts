@@ -18,11 +18,11 @@ export class YaUser extends OAuthUser {
 
     //--------------------------------------------------------------------------
     //
-    // 	Protected Methods
+    // 	Public Methods
     //
     //--------------------------------------------------------------------------
 
-    protected parse(item: any): void {
+    public parse(item: any): void {
         this.id = item.id;
         this.name = item.display_name;
         this.login = item.login;

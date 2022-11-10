@@ -2,10 +2,10 @@ export * from './OAuthBase';
 export * from './OAuthUser';
 //
 export * from './go/GoUser';
-export * from './go/GoOAuth';
+export * from './go/GoAuth';
 //
 export * from './vk/VkUser';
-export * from './vk/VkOAuth';
+export * from './vk/VkAuth';
 //
 export * from './ya/YaUser';
-export * from './ya/YaOAuth';
+export * from './ya/YaAuth';

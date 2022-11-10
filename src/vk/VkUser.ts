@@ -12,11 +12,11 @@ export class VkUser extends OAuthUser {
 
     //--------------------------------------------------------------------------
     //
-    // 	Protected Methods
+    // 	Public Methods
     //
     //--------------------------------------------------------------------------
 
-    protected parse(item: any): void {
+    public parse(item: any): void {
         this.id = item.id;
         this.vk = `https://vk.com/id${item.id}`;
         this.name = `${item.first_name} ${item.last_name}`;
