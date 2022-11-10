@@ -14,8 +14,8 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     protected popUp: Window;
     protected promise: PromiseHandler<IOAuthDto>;
 
-    protected popUpWidth: number = 640;
-    protected popUpHeight: number = 480;
+    protected popUpWidth: number = 430;
+    protected popUpHeight: number = 520;
     protected responseType: string;
 
     protected _urlParams: Map<string, string>;
@@ -70,7 +70,6 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
 
     protected getUrlParams(): URLSearchParams {
         let item = new URLSearchParams();
-        item.append('display', 'popup');
         item.append('client_id', this.applicationId);
         item.append('redirect_uri', this.redirectUri);
         item.append('response_type', this.responseType);
