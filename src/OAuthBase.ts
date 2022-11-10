@@ -1,6 +1,5 @@
 import { PromiseHandler, DateUtil, LoggerWrapper, ILogger, TransportHttp } from "@ts-core/common";
 import * as _ from 'lodash';
-import { URLSearchParams } from "url";
 
 export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //--------------------------------------------------------------------------
