@@ -18,14 +18,16 @@ export class OAuthParser {
     //--------------------------------------------------------------------------
 
     public static parse(params: any, fragment: string): IOAuthPopUpDto {
-        let item = new URLSearchParams();
+        let item = new Object()
 
-        _.forIn(params, (value, key) => item.append(key, value));
-        new URLSearchParams(fragment).forEach((value, key) => item.append(key, value));
+        _.forIn(params, (value, key) => item[key] = value);
+        new URLSearchParams(fragment).forEach((value, key) => item[key] = value);
 
         let oAuthError = null;
         let oAuthCodeOrToken = null;
-        item.forEach((value, key) => {
+
+        for (let key in item) {
+            let value = item[key];
             if (OAuthParser.NAMES.includes(key)) {
                 oAuthCodeOrToken = value;
             }
@@ -35,7 +37,7 @@ export class OAuthParser {
             if (!_.isEmpty(oAuthCodeOrToken) || !_.isEmpty(oAuthError)) {
                 return { oAuthCodeOrToken, oAuthError };
             }
-        });
+        };
         return null;
     }
 }
