@@ -42,6 +42,9 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
 
     protected async open(): Promise<IOAuthDto> {
         if (!_.isNil(this.promise)) {
+            if (!_.isNil(this.popUp) && !this.popUp.closed) {
+                this.popUp.focus();
+            }
             return this.promise.promise;
         }
 

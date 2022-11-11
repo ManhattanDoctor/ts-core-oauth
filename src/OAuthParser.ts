@@ -20,7 +20,6 @@ export class OAuthParser {
     public parse(params: any, fragment: string): IOAuthPopUpDto {
         let item = new URLSearchParams();
 
-        
         _.forIn(params, (value, key) => item.append(key, value));
         new URLSearchParams(fragment).forEach((value, key) => item.append(key, value));
 
