@@ -8,8 +8,8 @@ export class OAuthParser {
     //
     //--------------------------------------------------------------------------
 
-    public names: Array<string> = ['code', 'access_token'];
-    public errors: Array<string> = ['error_description', 'error'];
+    public static NAMES: Array<string> = ['code', 'access_token'];
+    public static ERRORS: Array<string> = ['error_description', 'error'];
 
     //--------------------------------------------------------------------------
     //
@@ -17,7 +17,7 @@ export class OAuthParser {
     //
     //--------------------------------------------------------------------------
 
-    public parse(params: any, fragment: string): IOAuthPopUpDto {
+    public static parse(params: any, fragment: string): IOAuthPopUpDto {
         let item = new URLSearchParams();
 
         _.forIn(params, (value, key) => item.append(key, value));
@@ -26,10 +26,10 @@ export class OAuthParser {
         let oAuthError = null;
         let oAuthCodeOrToken = null;
         item.forEach((value, key) => {
-            if (this.names.includes(key)) {
+            if (OAuthParser.NAMES.includes(key)) {
                 oAuthCodeOrToken = value;
             }
-            else if (this.errors.includes(key)) {
+            else if (OAuthParser.ERRORS.includes(key)) {
                 oAuthError = value;
             }
             if (!_.isEmpty(oAuthCodeOrToken) || !_.isEmpty(oAuthError)) {
