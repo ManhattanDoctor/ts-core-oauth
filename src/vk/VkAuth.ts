@@ -20,9 +20,9 @@ export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
 
     constructor(logger: ILogger, applicationId: string, window?: Window) {
         super(logger, applicationId, window);
-        this.urlParams.set('scope', 'status');
+        this.urlParams.set('scope', 'status,email');
     }
-    
+
     //--------------------------------------------------------------------------
     //
     // 	Protected Methods

@@ -1,5 +1,6 @@
 export * from './OAuthBase';
 export * from './OAuthUser';
+export * from './OAuthParser';
 //
 export * from './go/GoUser';
 export * from './go/GoAuth';
