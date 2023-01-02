@@ -4,6 +4,14 @@ import * as _ from 'lodash';
 export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //--------------------------------------------------------------------------
     //
+    // 	Constants
+    //
+    //--------------------------------------------------------------------------
+
+    public static ERROR_WINDOW_CLOSED = 'WINDOW_CLOSED';
+
+    //--------------------------------------------------------------------------
+    //
     // 	Properties
     //
     //--------------------------------------------------------------------------
@@ -52,7 +60,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
 
         this.popUp = this.openPopup();
         this.window.addEventListener('message', this.messageHandler, false);
-        this.timer = setInterval(this.checkPopUp, DateUtil.MILLISECONDS_NANOSECOND / 2);
+        this.timer = setInterval(this.checkPopUp, DateUtil.MILLISECONDS_SECOND / 10);
         return this.promise.promise;
     }
 
@@ -150,7 +158,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         }
 
         if (!_.isNil(this.promise)) {
-            this.promise.reject();
+            this.promise.reject(OAuthBase.ERROR_WINDOW_CLOSED);
             this.promise = null;
         }
     }
