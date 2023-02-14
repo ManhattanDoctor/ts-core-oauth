@@ -16,6 +16,10 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
+    public popUpWidth: number = 430;
+    public popUpHeight: number = 520;
+    public popUpTarget: string = '_blank';
+
     public redirectUri: string;
 
     protected http: TransportHttp;
@@ -24,8 +28,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     protected popUp: Window;
     protected promise: PromiseHandler<IOAuthDto>;
 
-    protected popUpWidth: number = 430;
-    protected popUpHeight: number = 520;
+
     protected responseType: string;
 
     protected _urlParams: Map<string, string>;
@@ -70,7 +73,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         let window = this.window;
         let top = (window.screen.height - this.popUpHeight) / 2;
         let left = (window.screen.width - this.popUpWidth) / 2;
-        let item = window.open(this.getUrl(), '_blank', `scrollbars=yes,width=${this.popUpWidth},height=${this.popUpHeight},top=${top},left=${left}`,);
+        let item = window.open(this.getUrl(), this.popUpTarget, `scrollbars=yes,width=${this.popUpWidth},height=${this.popUpHeight},top=${top},left=${left}`,);
         item.focus();
         return item;
     }
