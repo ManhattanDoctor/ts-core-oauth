@@ -16,22 +16,22 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
-    public popUpWidth: number = 430;
-    public popUpHeight: number = 520;
-    public popUpTarget: string = '_blank';
+    public popUpWidth: number;
+    public popUpHeight: number;
+    public popUpTarget: string;
+    public popUpIsCheckClose: boolean;
+    public popUpMessageParser: IOAuthPopUpMessageParser;
 
     public redirectUri: string;
 
     protected http: TransportHttp;
-    protected timer: any;
 
     protected popUp: Window;
     protected promise: PromiseHandler<IOAuthDto>;
-
-
     protected responseType: string;
 
     protected _urlParams: Map<string, string>;
+    protected _popUpCheckCloseTimer: any;
 
     //--------------------------------------------------------------------------
     //
@@ -42,6 +42,12 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     constructor(logger: ILogger, protected applicationId: string, protected window?: Window) {
         super(logger);
         this.http = new TransportHttp(logger, { method: 'get' });
+
+        this.popUpWidth = 430;
+        this.popUpHeight = 520;
+        this.popUpTarget = '_blank';
+        this.popUpIsCheckClose = true;
+        this.popUpMessageParser = this.browserMessageHandler;
 
         this._urlParams = new Map();
         this.urlParams.set('display', 'popup');
@@ -62,23 +68,32 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         }
 
         this.promise = PromiseHandler.create();
+        this.popUp = this.popupOpen();
+        this.popUpFocus();
 
-        this.popUp = this.openPopup();
+        if (this.popUpIsCheckClose) {
+            this.popUpCheckCloseTimer = setInterval(this.popUpCheckClose, DateUtil.MILLISECONDS_SECOND / 10);
+        }
+
         this.window.addEventListener('message', this.messageHandler, false);
-        this.timer = setInterval(this.checkPopUp, DateUtil.MILLISECONDS_SECOND / 10);
         return this.promise.promise;
     }
 
-    protected openPopup(): Window {
+    protected popupOpen(): Window {
         let window = this.window;
         let top = (window.screen.height - this.popUpHeight) / 2;
         let left = (window.screen.width - this.popUpWidth) / 2;
         let item = window.open(this.getUrl(), this.popUpTarget, `scrollbars=yes,width=${this.popUpWidth},height=${this.popUpHeight},top=${top},left=${left}`,);
-        item.focus();
         return item;
     }
 
-    protected checkPopUp = (): void => {
+    protected popUpFocus(): void {
+        if (!_.isNil(this.popUp) && !this.popUp.closed) {
+            this.popUp.focus();
+        }
+    }
+
+    protected popUpCheckClose = (): void => {
         if (_.isNil(this.popUp) || this.popUp.closed) {
             this.close();
         }
@@ -101,12 +116,11 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
-    public messageHandler = (event: MessageEvent<IOAuthPopUpDto>): void => {
-        let data = event.data;
-        if (event.origin !== this.getOriginUrl() || !_.isObject(data)) {
+    protected messageHandler = (event: MessageEvent): void => {
+        let data = this.popUpMessageParser(event);
+        if (_.isNil(data)) {
             return;
         }
-
         if (!_.isEmpty(data.oAuthCodeOrToken)) {
             this.promise.resolve({ redirectUri: this.getRedirectUri(), codeOrToken: data.oAuthCodeOrToken });
         }
@@ -116,6 +130,10 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         if (!this.promise.isPending) {
             this.close();
         }
+    }
+
+    protected browserMessageHandler(event: MessageEvent<IOAuthPopUpDto>): IOAuthPopUpDto {
+        return event.origin === this.getOriginUrl() && _.isObject(event.data) ? event.data : null;
     }
 
     //--------------------------------------------------------------------------
@@ -154,9 +172,8 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
 
     public close(): void {
         this.window.removeEventListener('message', this.messageHandler, false);
-        clearInterval(this.timer);
-        this.timer = null;
-
+        this.popUpCheckCloseTimer = null;
+        
         if (!_.isNil(this.popUp)) {
             this.popUp.close();
             this.popUp = null;
@@ -184,6 +201,23 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
             this.http.destroy();
             this.http = null;
         }
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    // 	Protected Properties
+    //
+    //--------------------------------------------------------------------------
+
+    protected get popUpCheckCloseTimer(): any {
+        return this._popUpCheckCloseTimer;
+    }
+    protected set popUpCheckCloseTimer(value: any) {
+        if (value === this._popUpCheckCloseTimer) {
+            return;
+        }
+        clearInterval(this._popUpCheckCloseTimer);
+        this._popUpCheckCloseTimer = value;
     }
 
     //--------------------------------------------------------------------------
@@ -220,4 +254,6 @@ export interface IOAuthToken {
     expiresIn: number;
     accessToken: string;
 }
+
+export type IOAuthPopUpMessageParser = (event: MessageEvent) => IOAuthPopUpDto;
 
