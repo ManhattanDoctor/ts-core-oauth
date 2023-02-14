@@ -16,6 +16,8 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
+    public redirectUri: string;
+
     protected http: TransportHttp;
     protected timer: any;
 
@@ -82,7 +84,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     protected getUrlParams(): URLSearchParams {
         let item = new URLSearchParams();
         item.append('client_id', this.applicationId);
-        item.append('redirect_uri', this.redirectUri);
+        item.append('redirect_uri', this.getRedirectUri());
         item.append('response_type', this.responseType);
         this.urlParams.forEach((value, key) => item.append(key, value));
         return item;
@@ -96,14 +98,14 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
-    protected messageHandler = (event: MessageEvent<IOAuthPopUpDto>): void => {
+    public messageHandler = (event: MessageEvent<IOAuthPopUpDto>): void => {
         let data = event.data;
-        if (event.origin !== this.originUrl || !_.isObject(data)) {
+        if (event.origin !== this.getOriginUrl() || !_.isObject(data)) {
             return;
         }
 
         if (!_.isEmpty(data.oAuthCodeOrToken)) {
-            this.promise.resolve({ redirectUri: this.redirectUri, codeOrToken: data.oAuthCodeOrToken });
+            this.promise.resolve({ redirectUri: this.getRedirectUri(), codeOrToken: data.oAuthCodeOrToken });
         }
         if (!_.isEmpty(data.oAuthError)) {
             this.promise.reject(data.oAuthError);
@@ -119,12 +121,12 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
-    protected get redirectUri(): string {
-        return `${this.originUrl}/oauth`;
+    protected getOriginUrl(): string {
+        return this.window.location.origin;
     }
 
-    protected get originUrl(): string {
-        return this.window.location.origin;
+    protected getRedirectUri(): string {
+        return !_.isNil(this.redirectUri) ? this.redirectUri : `${this.getOriginUrl()}/oauth`;
     }
 
     //--------------------------------------------------------------------------
