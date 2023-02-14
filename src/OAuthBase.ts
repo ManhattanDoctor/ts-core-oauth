@@ -68,7 +68,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         }
 
         this.promise = PromiseHandler.create();
-        this.popUp = this.popupOpen();
+        this.popUp = this.popUpOpen();
         this.popUpFocus();
 
         if (this.popUpIsCheckClose) {
@@ -79,7 +79,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         return this.promise.promise;
     }
 
-    protected popupOpen(): Window {
+    protected popUpOpen(): Window {
         let window = this.window;
         let top = (window.screen.height - this.popUpHeight) / 2;
         let left = (window.screen.width - this.popUpWidth) / 2;
@@ -173,7 +173,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     public close(): void {
         this.window.removeEventListener('message', this.messageHandler, false);
         this.popUpCheckCloseTimer = null;
-        
+
         if (!_.isNil(this.popUp)) {
             this.popUp.close();
             this.popUp = null;
