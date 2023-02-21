@@ -13,7 +13,7 @@ export class GoAuth<T extends GoUser = GoUser> extends OAuthBase<T> {
 
     constructor(logger: ILogger, applicationId: string, window?: Window) {
         super(logger, applicationId, window);
-        this.urlParams.set('scope', 'https://www.googleapis.com/auth/userinfo.profile');
+        this.urlParams.set('scope', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
     }
     
     //--------------------------------------------------------------------------

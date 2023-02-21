@@ -11,6 +11,7 @@ export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
     //--------------------------------------------------------------------------
 
     public v: string = '5.131';
+    private email: string;
 
     //--------------------------------------------------------------------------
     //
@@ -46,6 +47,9 @@ export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
         let { response } = await this.http.call('https://api.vk.com/method/users.get', { data: { access_token: token, v: this.v, fields } });
         let item = new VkUser();
         item.parse(response[0]);
+        if (_.isNil(item.email)) {
+            item.email = this.email;
+        }
         return item as T;
     }
 
@@ -63,10 +67,13 @@ export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
             throw new ExtendedError(item.error_description);
         }
 
+        if (!_.isNil(item.email)) {
+            this.email = item.email;
+        }
         return {
+            userId: item.user_id,
             expiresIn: item.expires_in,
             accessToken: item.access_token,
-            userId: item.user_id,
         };
     }
 }
