@@ -9,7 +9,6 @@ export const OAuthCordovaPropertiesSet = (item: OAuthBase, packageName: string):
     item.popUpIsCheckClose = false;
     item.popUpMessageParser = cordovaPopUpMessageParser;
 }
-
 function cordovaPopUpMessageParser(event: MessageEvent): IOAuthPopUpDto {
     let data = event.data;
     let prefix = 'oauth::';
