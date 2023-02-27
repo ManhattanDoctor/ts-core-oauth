@@ -1,4 +1,4 @@
-import { PromiseHandler, DateUtil, LoggerWrapper, ILogger, TransportHttp } from "@ts-core/common";
+import { PromiseHandler, DateUtil, LoggerWrapper, ILogger, TransportHttp, RandomUtil } from "@ts-core/common";
 import * as _ from 'lodash';
 
 export abstract class OAuthBase<T = any> extends LoggerWrapper {
@@ -50,6 +50,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         this.popUpMessageParser = this.browserMessageHandler;
 
         this._urlParams = new Map();
+        this.urlParams.set('state', RandomUtil.randomString());
         this.urlParams.set('display', 'popup');
     }
 
@@ -98,7 +99,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
             this.close();
         }
     }
-
+    
     protected getUrlParams(): URLSearchParams {
         let item = new URLSearchParams();
         item.append('client_id', this.applicationId);
@@ -116,21 +117,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
-    protected messageHandler = (event: MessageEvent): void => {
-        let data = this.popUpMessageParser(event);
-        if (_.isNil(data)) {
-            return;
-        }
-        if (!_.isEmpty(data.oAuthCodeOrToken)) {
-            this.promise.resolve({ redirectUri: this.getRedirectUri(), codeOrToken: data.oAuthCodeOrToken });
-        }
-        if (!_.isEmpty(data.oAuthError)) {
-            this.promise.reject(data.oAuthError);
-        }
-        if (!this.promise.isPending) {
-            this.close();
-        }
-    }
+    protected messageHandler = (event: MessageEvent): void => this.parsePopUpResult(this.popUpMessageParser(event));
 
     protected browserMessageHandler(event: MessageEvent<IOAuthPopUpDto>): IOAuthPopUpDto {
         return event.origin === this.getOriginUrl() && _.isObject(event.data) ? event.data : null;
@@ -159,6 +146,21 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     public abstract getProfile(token: string, ...params): Promise<T>;
 
     public abstract getTokenByCode(dto: IOAuthDto, secret: string): Promise<IOAuthToken>;
+
+    public parsePopUpResult(data: IOAuthPopUpDto): void {
+        if (_.isNil(data)) {
+            return;
+        }
+        if (!_.isEmpty(data.oAuthCodeOrToken)) {
+            this.promise.resolve({ redirectUri: this.getRedirectUri(), codeOrToken: data.oAuthCodeOrToken });
+        }
+        if (!_.isEmpty(data.oAuthError)) {
+            this.promise.reject(data.oAuthError);
+        }
+        if (!this.promise.isPending) {
+            this.close();
+        }
+    }
 
     public async getCode(): Promise<IOAuthDto> {
         this.responseType = 'code';
@@ -230,6 +232,9 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         return this._urlParams;
     }
 
+    public get state(): string {
+        return !_.isNil(this.urlParams) ? this.urlParams.get('state') : null;
+    }
 }
 
 export interface IOAuthDto {
