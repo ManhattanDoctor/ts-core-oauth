@@ -1,6 +1,7 @@
 import { PromiseHandler, DateUtil, ObservableData, LoggerWrapper, ILogger, TransportHttp, RandomUtil } from "@ts-core/common";
 import * as _ from 'lodash';
 import { filter, map, Observable, Subject } from "rxjs";
+import { OAuthParser } from "./OAuthParser";
 
 export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //--------------------------------------------------------------------------
@@ -21,7 +22,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     public popUpHeight: number;
     public popUpTarget: string;
     public popUpIsCheckClose: boolean;
-    public popUpMessageParser: IOAuthPopUpMessageParser;
+    public popUpMessageParser: IOAuthPopUpParser;
 
     public redirectUri: string;
 
@@ -50,7 +51,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         this.popUpHeight = 520;
         this.popUpTarget = '_blank';
         this.popUpIsCheckClose = true;
-        this.popUpMessageParser = this.browserMessageHandler;
+        this.popUpMessageParser = this.browserInternalMessageHandler;
 
         this._urlParams = new Map();
         this.urlParams.set('state', RandomUtil.randomString());
@@ -125,7 +126,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
 
     protected messageHandler = (event: MessageEvent): void => this.parsePopUpResult(this.popUpMessageParser(event));
 
-    protected browserMessageHandler(event: MessageEvent<IOAuthPopUpDto>): IOAuthPopUpDto {
+    protected browserInternalMessageHandler: IOAuthPopUpParser = (event: MessageEvent<IOAuthPopUpDto>): IOAuthPopUpDto => {
         return event.origin === this.getOriginUrl() && _.isObject(event.data) ? event.data : null;
     }
 
@@ -254,7 +255,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     public get popUpClosed(): Observable<Window> {
         return this.events.pipe(filter(item => item.type === OAuthEvent.POPUP_CLOSED), map(item => item.data));
     }
-    
+
     public get popUpOpened(): Observable<Window> {
         return this.events.pipe(filter(item => item.type === OAuthEvent.POPUP_OPENED), map(item => item.data));
     }
@@ -288,5 +289,4 @@ export enum OAuthEvent {
     POPUP_CLOSED = "POPUP_CLOSED",
 }
 
-export type IOAuthPopUpMessageParser = (event: MessageEvent) => IOAuthPopUpDto;
-
+export type IOAuthPopUpParser = (...params) => IOAuthPopUpDto;

@@ -13,3 +13,6 @@ export * from './ya/YaAuth';
 //
 export * from './ma/MaAuth';
 export * from './ma/MaUser';
+//
+export * from './external/backend';
+export * from './external/cordova';
