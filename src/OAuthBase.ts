@@ -1,5 +1,6 @@
-import { PromiseHandler, DateUtil, LoggerWrapper, ILogger, TransportHttp, RandomUtil } from "@ts-core/common";
+import { PromiseHandler, DateUtil, ObservableData, LoggerWrapper, ILogger, TransportHttp, RandomUtil } from "@ts-core/common";
 import * as _ from 'lodash';
+import { filter, map, Observable, Subject } from "rxjs";
 
 export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //--------------------------------------------------------------------------
@@ -25,6 +26,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     public redirectUri: string;
 
     protected http: TransportHttp;
+    protected subject: Subject<ObservableData<OAuthEvent, Window>>;
 
     protected popUp: Window;
     protected promise: PromiseHandler<IOAuthDto>;
@@ -42,6 +44,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     constructor(logger: ILogger, protected applicationId: string, protected window?: Window) {
         super(logger);
         this.http = new TransportHttp(logger, { method: 'get' });
+        this.subject = new Subject();
 
         this.popUpWidth = 430;
         this.popUpHeight = 520;
@@ -70,6 +73,9 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
 
         this.promise = PromiseHandler.create();
         this.popUp = this.popUpOpen();
+
+        this.subject.next(new ObservableData(OAuthEvent.POPUP_OPENED, this.popUp));
+
         this.popUpFocus();
 
         if (this.popUpIsCheckClose) {
@@ -99,7 +105,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
             this.close();
         }
     }
-    
+
     protected getUrlParams(): URLSearchParams {
         let item = new URLSearchParams();
         item.append('client_id', this.applicationId);
@@ -176,11 +182,13 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         this.window.removeEventListener('message', this.messageHandler, false);
         this.popUpCheckCloseTimer = null;
 
+        if (!_.isNil(this.subject)) {
+            this.subject.next(new ObservableData(OAuthEvent.POPUP_CLOSED, this.popUp));
+        }
         if (!_.isNil(this.popUp)) {
             this.popUp.close();
             this.popUp = null;
         }
-
         if (!_.isNil(this.promise)) {
             this.promise.reject(OAuthBase.ERROR_WINDOW_CLOSED);
             this.promise = null;
@@ -198,10 +206,13 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
             this.urlParams.clear();
             this._urlParams = null;
         }
-
         if (!_.isNil(this.http)) {
             this.http.destroy();
             this.http = null;
+        }
+        if (!_.isNil(this.subject)) {
+            this.subject.complete();
+            this.subject = null;
         }
     }
 
@@ -235,6 +246,18 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     public get state(): string {
         return !_.isNil(this.urlParams) ? this.urlParams.get('state') : null;
     }
+
+    public get events(): Observable<ObservableData<OAuthEvent, Window>> {
+        return !_.isNil(this.subject) ? this.subject.asObservable() : null;
+    }
+
+    public get popUpClosed(): Observable<Window> {
+        return this.events.pipe(filter(item => item.type === OAuthEvent.POPUP_CLOSED), map(item => item.data));
+    }
+    
+    public get popUpOpened(): Observable<Window> {
+        return this.events.pipe(filter(item => item.type === OAuthEvent.POPUP_OPENED), map(item => item.data));
+    }
 }
 
 export interface IOAuthDto {
@@ -258,6 +281,11 @@ export interface IOAuthToken {
 
     expiresIn: number;
     accessToken: string;
+}
+
+export enum OAuthEvent {
+    POPUP_OPENED = "POPUP_OPENED",
+    POPUP_CLOSED = "POPUP_CLOSED",
 }
 
 export type IOAuthPopUpMessageParser = (event: MessageEvent) => IOAuthPopUpDto;
