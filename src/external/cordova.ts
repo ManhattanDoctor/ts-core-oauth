@@ -4,9 +4,10 @@ import * as _ from 'lodash';
 
 // "cordova-plugin-oauth": "^4.0.1"
 export const OAuthCordovaPropertiesSet = (item: OAuthBase, packageName: string): void => {
-    item.popUpTarget = 'oauth:cordova';
     item.redirectUri = `${packageName}://oauth_callback`;
-    item.popUpIsCheckClose = false;
+    item.isRejectWhenPopUpClosed = false;
+    
+    item.popUpTarget = 'oauth:cordova';
     item.popUpMessageParser = cordovaPopUpMessageParser;
 }
 function cordovaPopUpMessageParser(event: MessageEvent): IOAuthPopUpDto {
