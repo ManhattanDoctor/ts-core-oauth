@@ -75,9 +75,10 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         this.popUp = this.popUpOpen();
         this.popUpFocus();
 
-        this.popUpCheckCloseTimer = setInterval(this.popUpCheckClose, DateUtil.MILLISECONDS_SECOND / 10);
-
         this.window.addEventListener('message', this.messageHandler, false);
+        this.subject.next(new ObservableData(OAuthEvent.POPUP_OPENED, this.popUp));
+        this.popUpCheckCloseTimer = setInterval(this.popUpCheckClose, DateUtil.MILLISECONDS_SECOND / 5);
+
         return this.promise.promise;
     }
 
@@ -87,7 +88,6 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         let top = (window.screen.height - this.popUpHeight) / 2;
         let left = (window.screen.width - this.popUpWidth) / 2;
         let item = window.open(this.getUrl(), this.popUpTarget, `scrollbars=yes,width=${this.popUpWidth},height=${this.popUpHeight},top=${top},left=${left}`,);
-        this.subject.next(new ObservableData(OAuthEvent.POPUP_OPENED, item));
         return item;
     }
 
@@ -98,12 +98,8 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     }
 
     protected popUpCheckClose = (): void => {
-        if (this.isPopUpOpened) {
-            return;
-        }
-        this.close();
-        if (this.isRejectWhenPopUpClosed && !_.isNil(this.promise)) {
-            this.promise.reject(OAuthBase.ERROR_WINDOW_CLOSED);
+        if (!this.isPopUpOpened) {
+            this.close();
         }
     }
 
@@ -160,13 +156,13 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         }
         if (!_.isEmpty(data.oAuthCodeOrToken)) {
             this.promise.resolve({ redirectUri: this.getRedirectUri(), codeOrToken: data.oAuthCodeOrToken });
+            this.promise = null;
         }
         if (!_.isEmpty(data.oAuthError)) {
             this.promise.reject(data.oAuthError);
+            this.promise = null;
         }
-        if (!this.promise.isPending) {
-            this.close();
-        }
+        this.close();
     }
 
     public async getCode(): Promise<IOAuthDto> {
@@ -182,13 +178,17 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     public close(): void {
         this.window.removeEventListener('message', this.messageHandler, false);
         this.popUpCheckCloseTimer = null;
-
-        if (!_.isNil(this.subject)) {
-            this.subject.next(new ObservableData(OAuthEvent.POPUP_CLOSED, this.popUp));
+        if (_.isNil(this.popUp)) {
+            return;
         }
-        if (!_.isNil(this.popUp)) {
-            this.popUp.close();
-            this.popUp = null;
+
+        this.subject.next(new ObservableData(OAuthEvent.POPUP_CLOSED, this.popUp));
+        this.popUp.close();
+        this.popUp = null;
+
+        if (this.isRejectWhenPopUpClosed && !_.isNil(this.promise)) {
+            this.promise.reject(OAuthBase.ERROR_WINDOW_CLOSED);
+            this.promise = null;
         }
     }
 
