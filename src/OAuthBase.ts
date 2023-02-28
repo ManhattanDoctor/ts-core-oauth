@@ -1,4 +1,4 @@
-import { PromiseHandler, DateUtil, ObservableData, LoggerWrapper, ILogger, TransportHttp, RandomUtil } from "@ts-core/common";
+import { PromiseHandler, DateUtil, ObservableData, LoggerWrapper, ILogger, TransportHttp, RandomUtil, ObjectUtil } from "@ts-core/common";
 import * as _ from 'lodash';
 import { filter, takeUntil, map, Observable, Subject } from "rxjs";
 import { OAuthParser } from "./OAuthParser";
@@ -123,7 +123,17 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     protected messageHandler = (event: MessageEvent): void => this.parsePopUpResult(this.popUpMessageParser(event));
 
     protected browserInternalMessageHandler: IOAuthPopUpParser = (event: MessageEvent<IOAuthPopUpDto>): IOAuthPopUpDto => {
-        return event.origin === this.getOriginUrl() && _.isObject(event.data) ? event.data : null;
+        if (event.origin !== this.getOriginUrl()) {
+            return null;
+        }
+        let data = event.data;
+        if (!_.isObject(data)) {
+            return null;
+        }
+        if (!ObjectUtil.hasOwnProperty(data, 'oAuthCodeOrToken') && !ObjectUtil.hasOwnProperty(data, 'oAuthError')) {
+            return null;
+        }
+        return data;
     }
 
     //--------------------------------------------------------------------------
@@ -271,8 +281,8 @@ export interface IOAuthDto {
 }
 
 export interface IOAuthPopUpDto {
-    oAuthCodeOrToken: string;
     oAuthError: string;
+    oAuthCodeOrToken: string;
 }
 
 export interface IOAuthToken {
