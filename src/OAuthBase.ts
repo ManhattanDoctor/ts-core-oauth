@@ -83,7 +83,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     }
 
     protected popUpFocus(): void {
-        if (this.isPopUpOpened) {
+        if (this.isPopUpOpened && _.isFunction(this.popUp.focus)) {
             this.popUp.focus();
         }
     }
