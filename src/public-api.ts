@@ -14,5 +14,6 @@ export * from './ya/YaAuth';
 export * from './ma/MaAuth';
 export * from './ma/MaUser';
 //
-export * from './external/backend';
-export * from './external/cordova';
+export * from './external/browser';
+export * from './external/cordovaOAuthPlugin';
+export * from './external/cordovaInAppBrowserPlugin';

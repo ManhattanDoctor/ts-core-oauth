@@ -5,22 +5,15 @@ import { YaUser } from "./YaUser";
 import * as _ from 'lodash';
 
 export class YaAuth<T extends YaUser = YaUser> extends OAuthBase<T> {
-
-    //--------------------------------------------------------------------------
-    //
-    // 	Protected Methods
-    //
-    //--------------------------------------------------------------------------
-
-    protected getUrl(): string {
-        return `https://oauth.yandex.ru/authorize?${this.getUrlParams().toString()}`;
-    }
-
     //--------------------------------------------------------------------------
     //
     // 	Public Methods
     //
     //--------------------------------------------------------------------------
+
+    public getPopUpUrl(): string {
+        return `https://oauth.yandex.ru/authorize?${this.getUrlParams().toString()}`;
+    }
 
     public async getProfile(token: string): Promise<T> {
         let item = new YaUser();

@@ -26,19 +26,13 @@ export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
 
     //--------------------------------------------------------------------------
     //
-    // 	Protected Methods
-    //
-    //--------------------------------------------------------------------------
-
-    protected getUrl(): string {
-        return `https://oauth.vk.com/authorize?${this.getUrlParams().toString()}`;
-    }
-
-    //--------------------------------------------------------------------------
-    //
     // 	Public Methods
     //
     //--------------------------------------------------------------------------
+
+    public getPopUpUrl(): string {
+        return `https://oauth.vk.com/authorize?${this.getUrlParams().toString()}`;
+    }
 
     public async getProfile(token: string, fields?: string): Promise<T> {
         if (_.isNil(fields)) {

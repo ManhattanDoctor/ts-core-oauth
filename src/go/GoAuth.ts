@@ -15,22 +15,16 @@ export class GoAuth<T extends GoUser = GoUser> extends OAuthBase<T> {
         super(logger, applicationId, window);
         this.urlParams.set('scope', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
     }
-    
-    //--------------------------------------------------------------------------
-    //
-    // 	Protected Methods
-    //
-    //--------------------------------------------------------------------------
-
-    protected getUrl(): string {
-        return `https://accounts.google.com/o/oauth2/v2/auth?${this.getUrlParams().toString()}`;
-    }
 
     //--------------------------------------------------------------------------
     //
     // 	Public Methods
     //
     //--------------------------------------------------------------------------
+
+    public getPopUpUrl(): string {
+        return `https://accounts.google.com/o/oauth2/v2/auth?${this.getUrlParams().toString()}`;
+    }
 
     public async getProfile(token: string): Promise<T> {
         let item = new GoUser();

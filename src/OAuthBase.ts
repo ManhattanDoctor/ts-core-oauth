@@ -1,7 +1,7 @@
 import { PromiseHandler, DateUtil, ObservableData, LoggerWrapper, ILogger, TransportHttp, RandomUtil, ObjectUtil } from "@ts-core/common";
 import * as _ from 'lodash';
-import { filter, takeUntil, map, Observable, Subject } from "rxjs";
-import { OAuthParser } from "./OAuthParser";
+import { filter, map, Observable, Subject } from "rxjs";
+import { OAuthBrowserPropertiesSet } from "./external";
 
 export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //--------------------------------------------------------------------------
@@ -21,7 +21,8 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     public popUpWidth: number;
     public popUpHeight: number;
     public popUpTarget: string;
-    public popUpMessageParser: IOAuthPopUpParser;
+    public popUpOpener: IOAuthPopUpOpener;
+    public popUpMessageParser: IOAuthPopUpMessageParser;
 
     public redirectUri: string;
     public isRejectWhenPopUpClosed: boolean;
@@ -50,13 +51,12 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         this.popUpWidth = 430;
         this.popUpHeight = 520;
         this.popUpTarget = '_blank';
-        this.popUpMessageParser = this.browserInternalMessageHandler;
-
-        this.isRejectWhenPopUpClosed = true;
 
         this._urlParams = new Map();
         this.urlParams.set('state', RandomUtil.randomString());
         this.urlParams.set('display', 'popup');
+
+        OAuthBrowserPropertiesSet(this);
     }
 
     //--------------------------------------------------------------------------
@@ -72,23 +72,14 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         }
 
         this.promise = PromiseHandler.create();
-        this.popUp = this.popUpOpen();
+        this.popUp = this.popUpOpenHandler();
         this.popUpFocus();
 
-        this.window.addEventListener('message', this.messageHandler, false);
+        this.window.addEventListener('message', this.popUpMessageHandler, false);
         this.subject.next(new ObservableData(OAuthEvent.POPUP_OPENED, this.popUp));
         this.popUpCheckCloseTimer = setInterval(this.popUpCheckClose, DateUtil.MILLISECONDS_SECOND / 5);
 
         return this.promise.promise;
-    }
-
-    protected popUpOpen(): Window {
-        let window = this.window;
-
-        let top = (window.screen.height - this.popUpHeight) / 2;
-        let left = (window.screen.width - this.popUpWidth) / 2;
-        let item = window.open(this.getUrl(), this.popUpTarget, `scrollbars=yes,width=${this.popUpWidth},height=${this.popUpHeight},top=${top},left=${left}`,);
-        return item;
     }
 
     protected popUpFocus(): void {
@@ -112,29 +103,15 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
         return item;
     }
 
-    protected abstract getUrl(): string;
-
     //--------------------------------------------------------------------------
     //
     // 	Event Handlers
     //
     //--------------------------------------------------------------------------
 
-    protected messageHandler = (event: MessageEvent): void => this.parsePopUpResult(this.popUpMessageParser(event));
+    protected popUpOpenHandler = (): Window => this.popUpOpener(this, this.window);
 
-    protected browserInternalMessageHandler: IOAuthPopUpParser = (event: MessageEvent<IOAuthPopUpDto>): IOAuthPopUpDto => {
-        if (event.origin !== this.getOriginUrl()) {
-            return null;
-        }
-        let data = event.data;
-        if (!_.isObject(data)) {
-            return null;
-        }
-        if (!ObjectUtil.hasOwnProperty(data, 'oAuthCodeOrToken') && !ObjectUtil.hasOwnProperty(data, 'oAuthError')) {
-            return null;
-        }
-        return data;
-    }
+    protected popUpMessageHandler = (event: MessageEvent): void => this.parseResponse(this.popUpMessageParser(this, event));
 
     //--------------------------------------------------------------------------
     //
@@ -142,11 +119,13 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
-    protected getOriginUrl(): string {
+    public abstract getPopUpUrl(): string;
+
+    public getOriginUrl(): string {
         return this.window.location.origin;
     }
 
-    protected getRedirectUri(): string {
+    public getRedirectUri(): string {
         return !_.isNil(this.redirectUri) ? this.redirectUri : `${this.getOriginUrl()}/oauth`;
     }
 
@@ -160,7 +139,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
 
     public abstract getTokenByCode(dto: IOAuthDto, secret: string): Promise<IOAuthToken>;
 
-    public parsePopUpResult(data: IOAuthPopUpDto): void {
+    public parseResponse(data: IOAuthPopUpDto): void {
         if (_.isNil(data)) {
             return;
         }
@@ -186,7 +165,7 @@ export abstract class OAuthBase<T = any> extends LoggerWrapper {
     }
 
     public close(): void {
-        this.window.removeEventListener('message', this.messageHandler, false);
+        this.window.removeEventListener('message', this.popUpMessageHandler, false);
         this.popUpCheckCloseTimer = null;
         if (_.isNil(this.popUp)) {
             return;
@@ -303,4 +282,5 @@ export enum OAuthEvent {
     POPUP_CLOSED = "POPUP_CLOSED",
 }
 
-export type IOAuthPopUpParser = (...params) => IOAuthPopUpDto;
+export type IOAuthPopUpOpener = <T extends OAuthBase>(item: T, window: Window) => Window;
+export type IOAuthPopUpMessageParser = <T extends OAuthBase>(item: T, event: MessageEvent) => IOAuthPopUpDto;

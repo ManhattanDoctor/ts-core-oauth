@@ -28,15 +28,15 @@ export class MaAuth<T extends MaUser = MaUser> extends OAuthBase<T> {
         return item;
     }
 
-    protected getUrl(): string {
-        return `https://oauth.mail.ru/login?${this.getUrlParams().toString()}`;
-    }
-
     //--------------------------------------------------------------------------
     //
     // 	Public Methods
     //
     //--------------------------------------------------------------------------
+
+    public getPopUpUrl(): string {
+        return `https://oauth.mail.ru/login?${this.getUrlParams().toString()}`;
+    }
 
     public async getProfile(token: string): Promise<T> {
         let item = new MaUser();
