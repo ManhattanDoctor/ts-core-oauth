@@ -14,18 +14,7 @@ export class MaAuth<T extends MaUser = MaUser> extends OAuthBase<T> {
     constructor(logger: ILogger, applicationId: string, window?: Window) {
         super(logger, applicationId, window);
         this.urlParams.set('scope', 'userinfo');
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    // 	Protected Methods
-    //
-    //--------------------------------------------------------------------------
-
-    protected getUrlParams(): URLSearchParams {
-        let item = super.getUrlParams();
-        item.append('state', RandomUtil.randomString(43));
-        return item;
+        this.urlParams.set('state', RandomUtil.randomString(43));
     }
 
     //--------------------------------------------------------------------------
