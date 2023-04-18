@@ -2,7 +2,6 @@ import { OAuthUser } from "../OAuthUser";
 import * as _ from 'lodash';
 
 export class MaUser extends OAuthUser {
-
     //--------------------------------------------------------------------------
     //
     // 	Properties

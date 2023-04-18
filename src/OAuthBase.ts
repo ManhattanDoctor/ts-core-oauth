@@ -265,16 +265,18 @@ export interface IOAuthPopUpDto {
 }
 
 export interface IOAuthToken {
+    expiresIn: number;
+    accessToken: string;
+
     state?: string;
     scope?: string;
     userId?: number;
-    tokenType?: string;
-
+    
     idToken?: string;
+    tokenType?: string;
+    
     refreshToken?: string;
-
-    expiresIn: number;
-    accessToken: string;
+    refreshExpiresIn?: string;
 }
 
 export enum OAuthEvent {

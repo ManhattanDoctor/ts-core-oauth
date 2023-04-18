@@ -14,6 +14,10 @@ export * from './ya/YaAuth';
 export * from './ma/MaAuth';
 export * from './ma/MaUser';
 //
+//
+export * from './keycloak/KeyCloakAuth';
+export * from './keycloak/KeyCloakUser';
+//
 export * from './external/browser';
 export * from './external/cordovaOAuthPlugin';
 export * from './external/cordovaInAppBrowserPlugin';
