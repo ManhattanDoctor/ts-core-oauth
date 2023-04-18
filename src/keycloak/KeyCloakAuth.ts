@@ -5,6 +5,7 @@ import { IOAuthDto, IOAuthToken, OAuthBase } from "../OAuthBase";
 import { KeyCloakUser } from "./KeyCloakUser";
 import { URLSearchParams } from "url";
 
+
 export class KeyCloakAuth<T extends KeyCloakUser = KeyCloakUser> extends OAuthBase<T> {
     //--------------------------------------------------------------------------
     //
