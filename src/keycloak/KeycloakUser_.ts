@@ -1,6 +1,6 @@
 import { OAuthUser } from "../OAuthUser";
 
-export class KeyCloakUser extends OAuthUser {
+export class KeycloakUser extends OAuthUser {
     //--------------------------------------------------------------------------
     //
     // 	Properties

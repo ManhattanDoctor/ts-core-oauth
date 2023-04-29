@@ -2,18 +2,17 @@
 import { ExtendedError, ILogger, RandomUtil } from "@ts-core/common";
 import * as _ from 'lodash';
 import { IOAuthDto, IOAuthToken, OAuthBase } from "../OAuthBase";
-import { KeyCloakUser } from "./KeyCloakUser";
+import { KeycloakUser } from "./KeycloakUser_";
 import { URLSearchParams } from "url";
 
-
-export class KeyCloakAuth<T extends KeyCloakUser = KeyCloakUser> extends OAuthBase<T> {
+export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBase<T> {
     //--------------------------------------------------------------------------
     //
     // 	Properties
     //
     //--------------------------------------------------------------------------
 
-    protected _settings: IKeyCloakAuthSettings;
+    protected _settings: IKeycloakAuthSettings;
 
     //--------------------------------------------------------------------------
     //
@@ -21,7 +20,7 @@ export class KeyCloakAuth<T extends KeyCloakUser = KeyCloakUser> extends OAuthBa
     //
     //--------------------------------------------------------------------------
 
-    constructor(logger: ILogger, settings: IKeyCloakAuthSettings, window?: Window) {
+    constructor(logger: ILogger, settings: IKeycloakAuthSettings, window?: Window) {
         super(logger, settings.applicationId, window);
         this._settings = settings;
 
@@ -51,7 +50,7 @@ export class KeyCloakAuth<T extends KeyCloakUser = KeyCloakUser> extends OAuthBa
     }
 
     public async getProfile(token: string): Promise<T> {
-        let item = new KeyCloakUser();
+        let item = new KeycloakUser();
         item.parse(await this.http.call(`${this.getBaseUrl()}/userinfo`, { headers: { Authorization: `Bearer ${token}` } }));
         return item as T;
     }
@@ -98,12 +97,12 @@ export class KeyCloakAuth<T extends KeyCloakUser = KeyCloakUser> extends OAuthBa
     //
     //--------------------------------------------------------------------------
 
-    public get settings(): IKeyCloakAuthSettings {
+    public get settings(): IKeycloakAuthSettings {
         return this._settings;
     }
 }
 
-export interface IKeyCloakAuthSettings {
+export interface IKeycloakAuthSettings {
     url: string;
     realm: string;
     applicationId: string;
