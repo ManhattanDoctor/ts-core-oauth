@@ -1,9 +1,9 @@
 
 import { ExtendedError, ILogger, RandomUtil } from "@ts-core/common";
-import * as _ from 'lodash';
 import { IOAuthDto, IOAuthToken, OAuthBase } from "../OAuthBase";
 import { KeycloakUser } from "./KeycloakUser";
 import { URLSearchParams } from "url";
+import * as _ from 'lodash';
 
 export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBase<T> {
     //--------------------------------------------------------------------------
