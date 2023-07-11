@@ -1,6 +1,6 @@
 {
     "name": "@ts-core/oauth",
-    "version": "3.1.3",
+    "version": "3.1.4",
     "description": "Classes and utils for oauth",
     "main": "./cjs/public-api.js",
     "module": "./esm/public-api.js",
