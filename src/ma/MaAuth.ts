@@ -13,8 +13,8 @@ export class MaAuth<T extends MaUser = MaUser> extends OAuthBase<T> {
 
     constructor(logger: ILogger, applicationId: string, window?: Window) {
         super(logger, applicationId, window);
-        this.urlParams.set('scope', 'userinfo');
-        this.urlParams.set('state', RandomUtil.randomString(43));
+        this.params.set('scope', 'userinfo');
+        this.params.set('state', RandomUtil.randomString(43));
     }
 
     //--------------------------------------------------------------------------
@@ -23,8 +23,8 @@ export class MaAuth<T extends MaUser = MaUser> extends OAuthBase<T> {
     //
     //--------------------------------------------------------------------------
 
-    public getPopUpUrl(): string {
-        return `https://oauth.mail.ru/login?${this.getUrlParams().toString()}`;
+    public popUpUrl(): string {
+        return `https://oauth.mail.ru/login?${this.getParams().toString()}`;
     }
 
     public async getProfile(token: string): Promise<T> {

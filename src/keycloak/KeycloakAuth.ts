@@ -23,9 +23,9 @@ export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBa
         super(logger, settings.applicationId, window);
         this._settings = settings;
 
-        this.urlParams.set('scope', 'openid');
-        this.urlParams.set('state', RandomUtil.randomString(10));
-        this.urlParams.set('response_mode', 'query');
+        this.params.set('scope', 'openid');
+        this.params.set('state', RandomUtil.randomString(10));
+        this.params.set('response_mode', 'query');
     }
 
     //--------------------------------------------------------------------------
@@ -44,8 +44,8 @@ export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBa
     //
     //--------------------------------------------------------------------------
 
-    public getPopUpUrl(): string {
-        return `${this.getBaseUrl()}/auth?${this.getUrlParams().toString()}`;
+    public popUpUrl(): string {
+        return `${this.getBaseUrl()}/auth?${this.getParams().toString()}`;
     }
 
     public async getProfile(token: string): Promise<T> {

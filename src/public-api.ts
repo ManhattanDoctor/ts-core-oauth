@@ -1,5 +1,6 @@
-export * from './OAuthBase';
+export * from './PopUpBase';
 export * from './OAuthUser';
+export * from './OAuthBase';
 export * from './OAuthParser';
 //
 export * from './go/GoUser';

@@ -13,7 +13,7 @@ export class GoAuth<T extends GoUser = GoUser> extends OAuthBase<T> {
 
     constructor(logger: ILogger, applicationId: string, window?: Window) {
         super(logger, applicationId, window);
-        this.urlParams.set('scope', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
+        this.params.set('scope', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
     }
 
     //--------------------------------------------------------------------------
@@ -22,8 +22,8 @@ export class GoAuth<T extends GoUser = GoUser> extends OAuthBase<T> {
     //
     //--------------------------------------------------------------------------
 
-    public getPopUpUrl(): string {
-        return `https://accounts.google.com/o/oauth2/v2/auth?${this.getUrlParams().toString()}`;
+    public popUpUrl(): string {
+        return `https://accounts.google.com/o/oauth2/v2/auth?${this.getParams().toString()}`;
     }
 
     public async getProfile(token: string): Promise<T> {

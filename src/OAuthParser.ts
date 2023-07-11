@@ -9,7 +9,7 @@ export class OAuthParser {
     //--------------------------------------------------------------------------
 
     public static NAMES: Array<string> = ['code', 'access_token'];
-    public static ERRORS: Array<string> = ['error_description', 'error'];
+    public static ERRORS: Array<string> = ['error', 'error_description'];
 
     //--------------------------------------------------------------------------
     //
@@ -18,26 +18,29 @@ export class OAuthParser {
     //--------------------------------------------------------------------------
 
     public static parse(params: any, fragment?: string): IOAuthPopUpDto {
-        let item = new Object()
+        let item = new Object() as any;
 
         _.forIn(params, (value, key) => item[key] = value);
         if (!_.isEmpty(fragment)) {
             new URLSearchParams(fragment).forEach((value, key) => item[key] = value);
         }
 
-        let oAuthError = null;
-        let oAuthCodeOrToken = null;
+        let oauthError = null;
+        let oauthCodeOrToken = null;
 
         for (let key in item) {
             let value = item[key];
             if (OAuthParser.NAMES.includes(key)) {
-                oAuthCodeOrToken = value;
+                oauthCodeOrToken = value;
             }
             else if (OAuthParser.ERRORS.includes(key)) {
-                oAuthError = value;
+                oauthError = value;
             }
-            if (!_.isEmpty(oAuthCodeOrToken) || !_.isEmpty(oAuthError)) {
-                return { oAuthCodeOrToken, oAuthError };
+            if (!_.isEmpty(oauthCodeOrToken)) {
+                return { oauthCodeOrToken };
+            }
+            else if (!_.isEmpty(oauthError)) {
+                return { oauthErrorDescription: item.error_description, oauthError };
             }
         };
         return null;

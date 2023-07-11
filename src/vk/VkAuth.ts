@@ -21,7 +21,7 @@ export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
 
     constructor(logger: ILogger, applicationId: string, window?: Window) {
         super(logger, applicationId, window);
-        this.urlParams.set('scope', 'status,email');
+        this.params.set('scope', 'status,email');
     }
 
     //--------------------------------------------------------------------------
@@ -30,8 +30,8 @@ export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
     //
     //--------------------------------------------------------------------------
 
-    public getPopUpUrl(): string {
-        return `https://oauth.vk.com/authorize?${this.getUrlParams().toString()}`;
+    public popUpUrl(): string {
+        return `https://oauth.vk.com/authorize?${this.getParams().toString()}`;
     }
 
     public async getProfile(token: string, fields?: string): Promise<T> {
