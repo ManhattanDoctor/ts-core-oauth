@@ -1,7 +1,7 @@
-import { IOAuthPopUpDto, OAuthBase } from '../OAuthBase';
+import { OAuthBase } from '../OAuthBase';
 import { OAuthParser } from '../OAuthParser';
-import * as _ from 'lodash';
 import { PopUpBase } from '../PopUpBase';
+import * as _ from 'lodash';
 
 // "cordova-plugin-oauth": "^4.0.1"
 export const OAuthCordovaOAuthPluginPropertiesSet = (item: OAuthBase, packageName: string): void => {
