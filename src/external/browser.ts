@@ -9,5 +9,5 @@ export const OAuthBrowserPropertiesSet = (item: OAuthBase): void => {
 }
 
 function popUpMessageEventParser(event: MessageEvent): any {
-    return !_.isNil(event.data.oauthError) || !_.isNil(event.data.oauthCodeOrToken) ? event.data : null;
+    return !_.isNil(event.data.oAuthError) || !_.isNil(event.data.oAuthCodeOrToken) ? event.data : null;
 }

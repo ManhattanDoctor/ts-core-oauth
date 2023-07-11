@@ -23,11 +23,11 @@ export const OAuthCordovaInAppBrowserPluginPropertiesSet = (item: OAuthBase, red
             try {
                 data = await method(item.state);
                 if (_.isEmpty(data)) {
-                    data = { oauthError: OAuthBase.ERROR_WINDOW_CLOSED };
+                    data = { oAuthError: OAuthBase.ERROR_WINDOW_CLOSED };
                 }
             }
             catch (error) {
-                data = { oauthError: error.toString() };
+                data = { oAuthError: error.toString() };
             }
             item.parse(data);
         }

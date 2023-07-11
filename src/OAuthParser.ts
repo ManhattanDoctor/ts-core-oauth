@@ -25,22 +25,22 @@ export class OAuthParser {
             new URLSearchParams(fragment).forEach((value, key) => item[key] = value);
         }
 
-        let oauthError = null;
-        let oauthCodeOrToken = null;
+        let oAuthError = null;
+        let oAuthCodeOrToken = null;
 
         for (let key in item) {
             let value = item[key];
             if (OAuthParser.NAMES.includes(key)) {
-                oauthCodeOrToken = value;
+                oAuthCodeOrToken = value;
             }
             else if (OAuthParser.ERRORS.includes(key)) {
-                oauthError = value;
+                oAuthError = value;
             }
-            if (!_.isEmpty(oauthCodeOrToken)) {
-                return { oauthCodeOrToken };
+            if (!_.isEmpty(oAuthCodeOrToken)) {
+                return { oAuthCodeOrToken };
             }
-            else if (!_.isEmpty(oauthError)) {
-                return { oauthErrorDescription: item.error_description, oauthError };
+            else if (!_.isEmpty(oAuthError)) {
+                return { oAuthErrorDescription: item.error_description, oAuthError };
             }
         };
         return null;
