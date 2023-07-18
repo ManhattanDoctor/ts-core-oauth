@@ -1,8 +1,8 @@
-import { ILogger, TransportHttp, RandomUtil, ExtendedError } from "@ts-core/common";
+import { ILogger, TransportHttp, RandomUtil, ExtendedError, DateUtil } from "@ts-core/common";
 import * as _ from 'lodash';
 import { Subject } from "rxjs";
 import { PopUpBase } from "./PopUpBase";
-import { OAuthBrowserPropertiesSet } from "./public-api";
+import { OAuthBrowserPropertiesSet } from "./external/browser";
 
 export abstract class OAuthBase<T = any> extends PopUpBase<IOAuthDto> {
     //--------------------------------------------------------------------------
@@ -13,7 +13,7 @@ export abstract class OAuthBase<T = any> extends PopUpBase<IOAuthDto> {
 
     public redirectUri: string;
 
-    protected http: TransportHttp;
+    protected _http: TransportHttp;
     protected responseType: string;
 
     //--------------------------------------------------------------------------
@@ -25,7 +25,7 @@ export abstract class OAuthBase<T = any> extends PopUpBase<IOAuthDto> {
     constructor(logger: ILogger, protected applicationId: string, window?: Window) {
         super(logger, window);
 
-        this.http = new TransportHttp(logger, { method: 'get' });
+        this._http = new TransportHttp(logger, { method: 'get', timeout: DateUtil.MILLISECONDS_MINUTE });
         this.subject = new Subject();
         this.params.set('state', RandomUtil.randomString());
         this.params.set('display', 'popup');
@@ -96,9 +96,9 @@ export abstract class OAuthBase<T = any> extends PopUpBase<IOAuthDto> {
         }
         super.destroy();
 
-        if (!_.isNil(this.http)) {
-            this.http.destroy();
-            this.http = null;
+        if (!_.isNil(this._http)) {
+            this._http.destroy();
+            this._http = null;
         }
     }
 
@@ -108,6 +108,10 @@ export abstract class OAuthBase<T = any> extends PopUpBase<IOAuthDto> {
     //
     //--------------------------------------------------------------------------
 
+    public get http(): TransportHttp {
+        return this._http;
+    }
+    
     public get state(): string {
         return !_.isNil(this.params) ? this.params.get('state') : null;
     }

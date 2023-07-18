@@ -7,6 +7,14 @@ import { ILogger } from '@ts-core/common';
 export class GoAuth<T extends GoUser = GoUser> extends OAuthBase<T> {
     //--------------------------------------------------------------------------
     //
+    // 	Properties
+    //
+    //--------------------------------------------------------------------------
+
+    public personFields: string;
+
+    //--------------------------------------------------------------------------
+    //
     // 	Constructor
     //
     //--------------------------------------------------------------------------
@@ -29,6 +37,9 @@ export class GoAuth<T extends GoUser = GoUser> extends OAuthBase<T> {
     public async getProfile(token: string): Promise<T> {
         let item = new GoUser();
         item.parse(await this.http.call('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { 'Authorization': `Bearer ${token}` } }));
+        if (!_.isEmpty(this.personFields)) {
+            item.parsePerson(await this.http.call(`https://people.googleapis.com/v1/people/me`, { headers: { 'Authorization': `Bearer ${token}` }, data: { personFields: this.personFields } }));
+        }
         return item as T;
     }
 

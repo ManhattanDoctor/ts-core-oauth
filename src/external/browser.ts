@@ -1,8 +1,7 @@
-import { OAuthBase } from '../OAuthBase';
-import { popUpOpener } from '../PopUpBase';
+import { PopUpBase, popUpOpener } from '../PopUpBase';
 import * as _ from 'lodash';
 
-export const OAuthBrowserPropertiesSet = (item: OAuthBase): void => {
+export const OAuthBrowserPropertiesSet = <U>(item: PopUpBase<U>): void => {
     item.popUpOpener = popUpOpener;
     item.popUpMessageEventParser = popUpMessageEventParser;
     item.isRejectWhenPopUpClosed = true;

@@ -27,4 +27,8 @@ export class GoUser extends OAuthUser {
         this.givenName = item.given_name;
         this.familyName = item.family_name;
     }
+
+    public parsePerson(item: any): void {
+
+    }
 }
