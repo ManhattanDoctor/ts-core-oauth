@@ -29,6 +29,5 @@ export class GoUser extends OAuthUser {
     }
 
     public parsePerson(item: any): void {
-
     }
 }
