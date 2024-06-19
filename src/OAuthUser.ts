@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
 import { Type } from 'class-transformer';
+import * as _ from 'lodash';
 
 export abstract class OAuthUser {
     //--------------------------------------------------------------------------
