@@ -20,7 +20,7 @@ export class MaUser extends OAuthUser {
     //--------------------------------------------------------------------------
 
     public parse(item: any): void {
-        this.id = item.id;
+        this.id = item.id.toString();
         this.name = item.name;
         this.email = item.email;
         this.locale = item.locale;

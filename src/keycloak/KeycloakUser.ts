@@ -19,7 +19,7 @@ export class KeycloakUser extends OAuthUser {
     //--------------------------------------------------------------------------
 
     public parse(item: any): void {
-        this.id = item.sub;
+        this.id = item.sub.toString();
         this.name = item.name;
         this.email = item.email;
         this.isEmailVerified = item.email_verified;

@@ -17,7 +17,7 @@ export class VkUser extends OAuthUser {
     //--------------------------------------------------------------------------
 
     public parse(item: any): void {
-        this.id = item.id;
+        this.id = item.id.toString();
         this.vk = `https://vk.com/id${item.id}`;
         this.name = `${item.first_name} ${item.last_name}`;
         this.picture = item.photo_200;

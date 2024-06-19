@@ -23,7 +23,7 @@ export class YaUser extends OAuthUser {
     //--------------------------------------------------------------------------
 
     public parse(item: any): void {
-        this.id = item.id;
+        this.id = item.id.toString();
         this.name = item.display_name;
         this.login = item.login;
         this.psuid = item.psuid;

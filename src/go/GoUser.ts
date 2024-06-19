@@ -19,7 +19,7 @@ export class GoUser extends OAuthUser {
     //--------------------------------------------------------------------------
 
     public parse(item: any): void {
-        this.id = item.sub;
+        this.id = item.sub.toString();
         this.name = item.name;
         this.email = item.email;
         this.locale = item.locale;
