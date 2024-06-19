@@ -15,6 +15,10 @@ export * from './ya/YaAuth';
 export * from './ma/MaAuth';
 export * from './ma/MaUser';
 //
+export * from './tg/TgUser';
+export * from './tg/TgAuth';
+export * from './tg/TgApiLoader';
+//
 export * from './keycloak/KeycloakAuth';
 export * from './keycloak/KeycloakUser';
 //

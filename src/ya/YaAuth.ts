@@ -37,7 +37,6 @@ export class YaAuth<T extends YaUser = YaUser> extends OAuthBase<T> {
             throw new ExtendedError(item.error_description);
         }
         
-
         return {
             expiresIn: item.expires_in,
             accessToken: item.access_token,

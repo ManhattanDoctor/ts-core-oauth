@@ -1,7 +1,7 @@
 import { ExtendedError, ILogger } from '@ts-core/common';
-import * as _ from 'lodash';
 import { IOAuthDto, IOAuthToken, OAuthBase } from "../OAuthBase";
 import { VkUser } from "./VkUser";
+import * as _ from 'lodash';
 
 export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
     //--------------------------------------------------------------------------
