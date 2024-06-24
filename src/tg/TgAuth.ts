@@ -48,6 +48,7 @@ export class TgAuth extends LoggerWrapper {
                     user.parse(item);
                     this.promise.resolve(user);
                 })
+                
             })
             .catch(error => {
                 this.promise.reject(new ExtendedError(error.message));
