@@ -12,9 +12,20 @@ export class TgAuth extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
-    public static getInitData(locationHash: string): any {
+    public static getUser(locationHash: string): TgUser {
+        let item = new TgUser();
+        item.parse(TgAuth.getInitDataUnsafe(locationHash));
+        item.raw = TgAuth.getInitData(locationHash);
+        return item;
+    }
+
+    public static getInitData(locationHash: string): string {
         let item = TgAuth.urlParseHashParams(locationHash);
         return item.tgWebAppData;
+    }
+
+    public static getInitDataUnsafe(locationHash: string): Record<string, any> {
+        return TgAuth.urlParseQueryString(TgAuth.getInitData(locationHash));
     }
 
     // Based on telegram-web-app.js
