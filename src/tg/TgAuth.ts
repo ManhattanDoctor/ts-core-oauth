@@ -13,8 +13,10 @@ export class TgAuth extends LoggerWrapper {
     //--------------------------------------------------------------------------
 
     public static getUser(locationHash: string): TgUser {
+        let { user } = TgAuth.getInitDataUnsafe(locationHash);
+        
         let item = new TgUser();
-        item.parse(TgAuth.getInitDataUnsafe(locationHash));
+        item.parse(JSON.parse(user));
         item.raw = TgAuth.getInitData(locationHash);
         return item;
     }
