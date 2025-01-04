@@ -8,6 +8,8 @@ export abstract class OAuthUser {
     //
     //--------------------------------------------------------------------------
 
+    public raw: any;
+
     public id: string;
     public name: string;
     public city?: string;
@@ -18,6 +20,7 @@ export abstract class OAuthUser {
     public locale?: string;
     public country?: string;
     public picture?: string;
+    public nickname?: string;
     public latitude?: number;
     public longitude?: number;
     public description?: string;
@@ -44,7 +47,9 @@ export abstract class OAuthUser {
     //
     //--------------------------------------------------------------------------
 
-    public abstract parse(item: any): void;
+    public parse(item: any): void {
+        this.raw = item;
+    }
 
     //--------------------------------------------------------------------------
     //

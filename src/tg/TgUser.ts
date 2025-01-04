@@ -21,12 +21,9 @@ export class TgUser extends OAuthUser {
     //
     //--------------------------------------------------------------------------
 
-    public raw: any;
-
     @Type(() => Date)
     public date: Date;
     public hash: string;
-    public username: string;
 
     //--------------------------------------------------------------------------
     //
@@ -35,15 +32,15 @@ export class TgUser extends OAuthUser {
     //--------------------------------------------------------------------------
 
     public parse(item: any): void {
+        super.parse(item);
+
         this.id = item.id.toString();
         this.hash = item.hash;
         this.name = `${item.first_name} ${item.last_name}`;
         this.date = DateUtil.getDate(item.auth_date * DateUtil.MILLISECONDS_SECOND);
         this.picture = item.photo_url;
-        this.username = item.username;
-        this.telegram = `https://t.me/${item.username}`;
-
-        this.raw = item;
+        this.nickname = item.username;
+        this.telegram = `https://t.me/${item.nickname}`;
     }
 
     public toCheckString(): string {
