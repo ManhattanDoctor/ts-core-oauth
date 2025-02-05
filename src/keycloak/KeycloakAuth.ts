@@ -20,7 +20,7 @@ export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBa
     //--------------------------------------------------------------------------
 
     constructor(logger: ILogger, settings: IKeycloakAuthSettings, window?: Window) {
-        super(logger, settings.applicationId, window);
+        super(logger, settings.clientId, window);
         this._settings = settings;
 
         this.params.set('scope', 'openid');
@@ -104,5 +104,5 @@ export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBa
 export interface IKeycloakAuthSettings {
     url: string;
     realm: string;
-    applicationId: string;
+    clientId: string;
 }
