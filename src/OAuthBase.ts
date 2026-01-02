@@ -51,14 +51,14 @@ export abstract class OAuthBase<T = any> extends PopUpBase<IOAuthDto> {
         return item;
     }
 
-    protected parseMessageData(item: any): IOAuthDto {
+    protected parseMessageData(item: IOAuthPopUpDto): IOAuthDto {
         return {
             codeOrToken: item.oAuthCodeOrToken,
             redirectUri: this.getRedirectUri()
         }
     }
 
-    protected isMessageError(item: any): boolean {
+    protected isMessageError(item: IOAuthPopUpDto): boolean {
         return !_.isNil(item.oAuthError);
     }
 
@@ -111,7 +111,7 @@ export abstract class OAuthBase<T = any> extends PopUpBase<IOAuthDto> {
     public get http(): TransportHttp {
         return this._http;
     }
-    
+
     public get state(): string {
         return !_.isNil(this.params) ? this.params.get('state') : null;
     }
