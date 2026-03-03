@@ -1,5 +1,5 @@
 
-import { ExtendedError, ILogger, RandomUtil } from "@ts-core/common";
+import { DateUtil, ExtendedError, ILogger, RandomUtil } from "@ts-core/common";
 import { IOAuthDto, IOAuthToken, OAuthBase } from "../OAuthBase";
 import { KeycloakUser } from "./KeycloakUser";
 import * as _ from 'lodash';
@@ -36,6 +36,10 @@ export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBa
 
     protected getBaseUrl(): string {
         return `${this.settings.url}/realms/${this.settings.realm}/protocol/openid-connect`;
+    }
+
+    protected getLogoutRedirectUri(): string {
+        return this.getRedirectUri();
     }
 
     //--------------------------------------------------------------------------
@@ -80,6 +84,23 @@ export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBa
             refreshToken: item.refresh_token,
             refreshExpiresIn: item.refresh_expires_in,
         };
+    }
+
+    public async logout(): Promise<void> {
+        let params = new URLSearchParams();
+        params.append('client_id', this.applicationId);
+        params.append('post_logout_redirect_uri', this.getLogoutRedirectUri());
+        let url = `${this.getBaseUrl()}/logout?${params.toString()}`;
+
+        let popUp = this.popUpOpener(this, this.window, url);
+        return new Promise<void>(resolve => {
+            let timer = setInterval(() => {
+                if (_.isNil(popUp) || popUp.closed) {
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, DateUtil.MILLISECONDS_SECOND / 5);
+        });
     }
 
     public destroy(): void {

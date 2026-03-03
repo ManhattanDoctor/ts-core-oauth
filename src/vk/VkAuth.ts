@@ -31,7 +31,8 @@ export class VkAuth<T extends VkUser = VkUser> extends OAuthBase<T> {
     //--------------------------------------------------------------------------
 
     public popUpUrl(): string {
-        return `https://oauth.vk.com/authorize?${this.getParams().toString()}`;
+        return `https://id.vk.ru/authorize?${this.getParams().toString()}`;
+        // return `https://oauth.vk.com/authorize?${this.getParams().toString()}`;
     }
 
     public async getProfile(token: string, fields?: string): Promise<T> {

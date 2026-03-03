@@ -121,6 +121,9 @@ export interface IOAuthDto {
     codeOrToken: string;
     redirectUri: string;
 }
+export interface IOAuthLogoutDto {
+
+}
 
 export interface IOAuthPopUpDto {
     oAuthError?: string;

@@ -239,13 +239,16 @@ export abstract class PopUpBase<U> extends LoggerWrapper {
     }
 }
 
-export function popUpOpener<T extends PopUpBase<U>, U>(popUp: T, window: Window): Window {
+export function popUpOpener<T extends PopUpBase<U>, U>(popUp: T, window: Window, url?: string): Window {
+    if (_.isNil(url)) {
+        url = popUp.popUpUrl();
+    }
     let top = (window.screen.height - popUp.popUpHeight) / 2;
     let left = (window.screen.width - popUp.popUpWidth) / 2;
-    return window.open(popUp.popUpUrl(), popUp.popUpTarget, `scrollbars=yes,width=${popUp.popUpWidth},height=${popUp.popUpHeight},top=${top},left=${left}`);
+    return window.open(url, popUp.popUpTarget, `scrollbars=yes,width=${popUp.popUpWidth},height=${popUp.popUpHeight},top=${top},left=${left}`);
 }
 
-export type IPopUpOpener = <T extends PopUpBase<U>, U>(popUp: T, window: Window) => Window;
+export type IPopUpOpener = <T extends PopUpBase<U>, U>(popUp: T, window: Window, url?: string) => Window;
 
 export type IPopUpMessageEventParser = (event: MessageEvent) => any;
 

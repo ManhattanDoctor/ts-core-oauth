@@ -102,7 +102,12 @@ const auth = new KeycloakAuth(new NullLogger(), settings);
 const { codeOrToken, redirectUri } = await auth.getCode();
 const token = await auth.getTokenByCode({ codeOrToken, redirectUri }, 'YOUR_SECRET');
 const user: KeycloakUser = await auth.getProfile(token.accessToken);
+
+// Logout через pop-up окно
+await auth.logout();
 ```
+
+> **Logout**: метод `logout()` открывает pop-up с Keycloak logout endpoint. Keycloak завершает SSO-сессию и перенаправляет на redirect URI. Когда redirect-страница вызывает `window.close()`, промис резолвится.
 
 ### Telegram Web App
 
@@ -170,7 +175,7 @@ console.log(user.name, user.telegram);
 | VK | `VkAuth` | `VkUser` | Email из токена |
 | Яндекс | `YaAuth` | `YaUser` | Стандартный OAuth 2.0 |
 | Mail.ru | `MaAuth` | `MaUser` | Стандартный OAuth 2.0 |
-| Keycloak | `KeycloakAuth` | `KeycloakUser` | Настраиваемый realm/URL |
+| Keycloak | `KeycloakAuth` | `KeycloakUser` | Настраиваемый realm/URL, logout через pop-up |
 | Telegram | `TgAuth` | `TgUser` | Web App + Login Widget |
 
 ---
@@ -196,6 +201,7 @@ class OAuthBase<T> extends PopUpBase<IOAuthDto> {
 
     // Настройки
     redirectUri: string;                     // Кастомный redirect URI
+    popUpOpener: IPopUpOpener;               // Функция открытия pop-up (browser/cordova)
 
     // Свойства
     readonly state: string;                  // Случайный state для CSRF защиты
@@ -203,6 +209,10 @@ class OAuthBase<T> extends PopUpBase<IOAuthDto> {
 
     destroy(): void;                         // Освобождение ресурсов
 }
+
+// Тип функции открытия pop-up (поддерживает опциональный url для logout и др.)
+type IPopUpOpener = <T extends PopUpBase<U>, U>(popUp: T, window: Window, url?: string) => Window;
+
 ```
 
 ### OAuthUser
@@ -238,6 +248,24 @@ abstract class OAuthUser {
 
     // Геттеры
     readonly location: string;   // "Country, City"
+}
+```
+
+### KeycloakAuth
+
+```typescript
+class KeycloakAuth<T extends KeycloakUser> extends OAuthBase<T> {
+    constructor(logger: ILogger, settings: IKeycloakAuthSettings, window?: Window);
+
+    // Logout через pop-up окно
+    // Открывает Keycloak OIDC logout endpoint, ждёт закрытия окна
+    logout(): Promise<void>;
+
+    // Реализация OAuthBase
+    getProfile(token: string): Promise<T>;
+    getTokenByCode(dto: IOAuthDto, secret: string): Promise<IOAuthToken>;
+
+    readonly settings: IKeycloakAuthSettings;
 }
 ```
 
@@ -289,14 +317,19 @@ interface ITgAuthSettings {
 **Требования к redirect странице:**
 
 ```html
-<!-- /oauth.html -->
+<!-- /oauth.html — обрабатывает и login callback, и logout redirect -->
 <script>
     const params = new URLSearchParams(window.location.search + window.location.hash.replace('#', '&'));
-    window.opener.postMessage({
-        oAuthCodeOrToken: params.get('code') || params.get('access_token'),
-        oAuthError: params.get('error'),
-        oAuthErrorDescription: params.get('error_description')
-    }, '*');
+    const code = params.get('code') || params.get('access_token');
+    if (code || params.get('error')) {
+        // Login callback — отправляем данные родительскому окну
+        window.opener.postMessage({
+            oAuthCodeOrToken: code,
+            oAuthError: params.get('error'),
+            oAuthErrorDescription: params.get('error_description')
+        }, '*');
+    }
+    // Закрываем pop-up (работает и для login, и для logout redirect)
     window.close();
 </script>
 ```
