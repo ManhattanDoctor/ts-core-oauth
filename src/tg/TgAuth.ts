@@ -14,7 +14,7 @@ export class TgAuth extends LoggerWrapper {
 
     public static getUser(locationHash: string): TgUser {
         let { user } = TgAuth.getInitDataUnsafe(locationHash);
-        
+
         let item = new TgUser();
         item.parse(JSON.parse(user));
         item.raw = TgAuth.getInitData(locationHash);
@@ -85,6 +85,8 @@ export class TgAuth extends LoggerWrapper {
     //
     //--------------------------------------------------------------------------
 
+    public userProvider: ITgUserProvider;
+
     protected promise: PromiseHandler<TgUser, ExtendedError>;
     protected settings: ITgAuthSettings;
 
@@ -110,6 +112,21 @@ export class TgAuth extends LoggerWrapper {
             return this.promise.promise;
         }
         this.promise = PromiseHandler.create();
+
+        if (!_.isNil(this.userProvider)) {
+            this.userProvider(this.settings.botId)
+                .then(user => {
+                    this.promise.resolve(user);
+                })
+                .catch(error => {
+                    this.promise.reject(error instanceof ExtendedError ? error : new ExtendedError(error.message));
+
+                }).finally(() => {
+                    this.promise = null;
+                });
+            return this.promise.promise;
+        }
+
         this.settings.api.getApi()
             .then(item => {
                 item.Login.auth({ bot_id: this.settings.botId }, item => {
@@ -147,3 +164,5 @@ export interface ITgAuthSettings {
     api: ITgApiLoader;
     botId: number;
 }
+
+export type ITgUserProvider = (botId: number) => Promise<TgUser>;

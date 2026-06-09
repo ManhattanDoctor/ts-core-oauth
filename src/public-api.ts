@@ -25,3 +25,4 @@ export * from './keycloak/KeycloakUser';
 export * from './external/browser';
 export * from './external/cordovaOAuthPlugin';
 export * from './external/cordovaInAppBrowserPlugin';
+export * from './external/cordovaInAppBrowserTgPlugin';
