@@ -1,7 +1,7 @@
 {
     "name": "@ts-core/oauth",
     "version": "3.1.19",
-    "description": "Classes and utils for oauth",
+    "description": "TypeScript library for OAuth authentication through Google, VK, Yandex, Mail.ru, Keycloak and Telegram, supporting browser, Cordova and Telegram Web App platforms",
     "main": "./cjs/public-api.js",
     "module": "./esm/public-api.js",
     "exports": {
@@ -28,7 +28,20 @@
         "url": "git+https://github.com/ManhattanDoctor/ts-core-oauth.git"
     },
     "keywords": [
-        "typescript"
+        "typescript",
+        "oauth",
+        "oauth2",
+        "authentication",
+        "authorization",
+        "google",
+        "vk",
+        "yandex",
+        "mailru",
+        "keycloak",
+        "telegram",
+        "cordova",
+        "login",
+        "sso"
     ],
     "bugs": {
         "url": "https://github.com/ManhattanDoctor/ts-core-oauth/issues"
