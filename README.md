@@ -176,7 +176,7 @@ console.log(user.name, user.telegram);
 | Яндекс | `YaAuth` | `YaUser` | Стандартный OAuth 2.0 |
 | Mail.ru | `MaAuth` | `MaUser` | Стандартный OAuth 2.0 |
 | Keycloak | `KeycloakAuth` | `KeycloakUser` | Настраиваемый realm/URL, logout через pop-up |
-| Telegram | `TgAuth` | `TgUser` | Web App + Login Widget |
+| Telegram | `TgAuth` | `TgUser` | Web App + Login Widget + Cordova |
 
 ---
 
@@ -336,23 +336,47 @@ interface ITgAuthSettings {
 
 ### Cordova OAuth Plugin
 
+Требуется `cordova-plugin-oauth`. Redirect URI выставляется в `<packageName>://oauth_callback`.
+
 ```typescript
-import { CordovaOAuthPluginPropertiesSet } from '@ts-core/oauth';
+import { OAuthCordovaOAuthPluginPropertiesSet } from '@ts-core/oauth';
 
 const auth = new GoAuth(logger, 'CLIENT_ID');
-CordovaOAuthPluginPropertiesSet(auth);
+OAuthCordovaOAuthPluginPropertiesSet(auth, 'com.example.app');
 ```
 
 ### Cordova InAppBrowser
 
+Требуется `cordova-plugin-inappbrowser`. Когда InAppBrowser доходит до `redirectUri`, вызывается переданный метод: он по `state` забирает с бэкенда результат авторизации.
+
 ```typescript
-import { CordovaInAppBrowserPluginPropertiesSet } from '@ts-core/oauth';
+import { OAuthCordovaInAppBrowserPluginPropertiesSet } from '@ts-core/oauth';
 
 const auth = new GoAuth(logger, 'CLIENT_ID');
-CordovaInAppBrowserPluginPropertiesSet(auth, async (url) => {
-    // Ваша логика получения токена по URL
-    return { codeOrToken: 'token', redirectUri: 'uri' };
+OAuthCordovaInAppBrowserPluginPropertiesSet(auth, 'https://myapp.com/oauth', async (state) => {
+    // Получить сохранённый бэкендом результат для state
+    return { oAuthCodeOrToken: 'code' };
 });
+```
+
+### Telegram Login в Cordova (InAppBrowser)
+
+Виджет Telegram внутри Cordova не работает, поэтому `TgAuth` открывает `oauth.telegram.org/auth` в InAppBrowser. Как только браузер переходит на `returnUrl`, из `#tgAuthResult` или query-параметров собирается `TgUser`, окно закрывается. Если пользователь закрыл окно сам, `getUser()` отклоняется с `ERROR_WINDOW_CLOSED`.
+
+Требуется `cordova-plugin-inappbrowser`. Домен из `origin` должен быть привязан к боту через `/setdomain` в @BotFather.
+
+```typescript
+import { TgAuth, TgApiLoader, TgAuthCordovaInAppBrowserPluginPropertiesSet } from '@ts-core/oauth';
+
+const auth = new TgAuth(logger, { api: new TgApiLoader(logger), botId: YOUR_BOT_ID });
+TgAuthCordovaInAppBrowserPluginPropertiesSet(auth, {
+    origin: 'https://myapp.com',             // Домен, привязанный к боту
+    returnUrl: 'https://myapp.com/oauth',    // Куда Telegram вернёт пользователя
+    requestAccess: 'write',                  // Необязательно: разрешение писать пользователю
+    // inAppBrowserOptions: 'location=no'    // Необязательно: опции InAppBrowser
+});
+
+const user = await auth.getUser();
 ```
 
 ---
@@ -413,7 +437,8 @@ src/
 ├── external/             # Платформенные интеграции
 │   ├── browser.ts
 │   ├── cordovaOAuthPlugin.ts
-│   └── cordovaInAppBrowserPlugin.ts
+│   ├── cordovaInAppBrowserPlugin.ts
+│   └── cordovaInAppBrowserTgPlugin.ts
 ├── go/                   # Google
 ├── vk/                   # VK
 ├── ya/                   # Яндекс
