@@ -86,10 +86,14 @@ export class KeycloakAuth<T extends KeycloakUser = KeycloakUser> extends OAuthBa
         };
     }
 
-    public async logout(): Promise<void> {
+    public async logout(idTokenHint?: string): Promise<void> {
         let params = new URLSearchParams();
         params.append('client_id', this.applicationId);
         params.append('post_logout_redirect_uri', this.getLogoutRedirectUri());
+        // id_token_hint позволяет Keycloak завершить сессию без экрана подтверждения
+        if (!_.isNil(idTokenHint)) {
+            params.append('id_token_hint', idTokenHint);
+        }
         let url = `${this.getBaseUrl()}/logout?${params.toString()}`;
 
         let popUp = this.popUpOpener(this, this.window, url);
